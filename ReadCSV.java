@@ -26,7 +26,4 @@ public class ReadCSV
 			System.out.println(input.nextLine());
 		}
 	}
-
-
-
 }

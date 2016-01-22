@@ -1,50 +1,58 @@
+package Netflix;
+
 import java.util.Iterator;
 import java.lang.Iterable;
-
 /**
 * This is a class that creates a vector
 * A vector is another data struture, similar to ArrayList
-* Got some guidance from Kevin Chow and Jack Proudfoot
+* Got some guidance from Kevin Chow
 * @author Anish Seth
 * @version 10.18.15
 */
 public class Vector <E> implements Iterable<E>
 {
 	private Object[] data; //Array storing all the values in the vector
+	private int capacity; //Number of spaces the vector can hold
 	private int occupy; //Number of spaces occupied
 
 
 	/**
 	 * Default constructor, sets capacity to 10
 	 */
+	@SuppressWarnings("unchecked")
 	public Vector()
 	{
-		data = new Object[10];
+		data = (E[]) new Object[10];
 		occupy = 0;
+		capacity = 10;
 	}
 
 	/**
 	 * Constructor that takes in a value for the capacity of the vector
 	 * @param size Size of the vector
 	 */
+	@SuppressWarnings("unchecked")
 	public Vector(int size)
 	{
-		data = new Object[size];
+		data = (E[]) new Object[size];
 		occupy = 0;
+		capacity = size;
 	}
 
 	/**
 	 * Constructor that copies a vector into this class
+	 * Running into error when trying to typecast, suppressing warnings
 	 * @param other vector to be copied
 	 */
+	@SuppressWarnings("unchecked")
 	public Vector(Vector<E> other)
 	{
-		data = new Object[other.size()];
-		for(int i = 0; i < data.length; i++)
+		data = (E[]) new Object[other.size()];
+		for(int i = 0; i < other.size(); i++)
 		{
 			data[i] = other.get(i);
+			occupy++;
 		}
-		occupy = data.length;
 	}
 
 	/**
@@ -53,51 +61,44 @@ public class Vector <E> implements Iterable<E>
 	 */
 	public void add(E x)
 	{
-		add(x, occupy);
+		if(occupy + 1 < data.length)
+			Grow();
+		data[occupy++] = x;
 	}
 
 	/**
-	 * Adds an object to a specific index in the vector, if vector is full, grows the vector 
+	 * Adds an object to a specific index in the vector
 	 * @param x Object that will be added
 	 * @param i	Specific index at which the object will be added
 	 */
 	public void add(E x, int i)
 	{
-		if(i < 0 || i > occupy)
+		if(i<0 || i > capacity)
 			throw new IndexOutOfBoundsException();
-		if(occupy+1 >= data.length)
+		int length = occupy-1;
+		int hold = i;
+		for(int index = hold-1; index < length; index++)
 		{
-			Grow();
-			add(x, i);
-		}
-		else
-		{
-			occupy++;
-			for(int index = occupy - 1; index > i; index--)
-			{
-				if(data[index-1] != null)
-					data[index] = data[index-1];
-				else
-					data[index] = null;
-			}
-		}
-		data[i] = (Object) x;
+    		data[length] = data[hold];
+        	hold++;
+    	}
+    	data[i] = x;
+		occupy++;
 	}
 
 	/**
 	 * Creates a new vector with double the capacity
-	 * Moves all the values in the old vector into the new vector
 	 * @return New vector with double the size
 	 */
-	private void Grow()
+	@SuppressWarnings("unchecked")
+	private Object[] Grow()
 	{
-		Object [] Double = new Object[data.length * 2];
-		for(int i = 0; i < occupy; i++)
+		Object [] x = new Object[data.length * 2];
+		for(int i = 0; i< occupy; i++)
 		{
-			if(data[i] != null)
-				Double[i] = data[i];
+			x[i] = (E) data[i];
 		}
-		data = Double;
+		return x;
 	}
 
 	/**
@@ -108,11 +109,9 @@ public class Vector <E> implements Iterable<E>
 	@SuppressWarnings("unchecked")
 	public E get(int i)
 	{
-		if(i<0 || i > occupy)
+		if(i<0 || i > capacity)
 			throw new IndexOutOfBoundsException();
-		if(data[i] != null)
-			return (E) data[i];
-		return null;
+		return (E) data[i];
 	}
 	/**
 	 * Remove and return item at specified index
@@ -123,19 +122,17 @@ public class Vector <E> implements Iterable<E>
 	@SuppressWarnings("unchecked")
 	public E remove(int key)
 	{
-		if(key<0 || key > occupy)
+		if(key<0 || key > capacity)
 			throw new IndexOutOfBoundsException();
-		if(key < occupy)
+		int length = occupy-1;
+		for(int i = length; i > key-1; i--)
 		{
-			E removable = (E) data[key];
-			for(int i = key; i < occupy; i++)
-			{
-				data[i] = data[i+1];
-			}
-			occupy--;
-			return removable;
+			data[length] = data[key];
 		}
-		return null;
+		E hold = (E) data[key];
+		data[key] = null;
+		occupy--;
+		return hold;
 	}
 
 	/**
@@ -146,7 +143,7 @@ public class Vector <E> implements Iterable<E>
 	public boolean remove(E obj)
 	{
 		int index = indexOf(obj);
-		if(index >= 0 && obj != null)
+		if(index >= 0)
 		{
 			remove(index);
 			return true;
@@ -163,15 +160,10 @@ public class Vector <E> implements Iterable<E>
 	@SuppressWarnings("unchecked")
 	public E set(int index, E obj)
 	{
-		if(index<0 || index > occupy)
+		if(index<0 || index > capacity)
 			throw new IndexOutOfBoundsException();
-		E hold = null;
-		if(index < occupy)
-		{
-			if(data[index] != null)
-				hold = (E) data[index];
-			data[index] = obj;
-		}
+		E hold = (E) data[index];
+		data[index] = obj;
 		return hold;
 	}
 
@@ -189,7 +181,7 @@ public class Vector <E> implements Iterable<E>
 	 */
 	public void clear()
 	{
-		for(int i = 0; i < occupy; i++)
+		for(int i = 0; i < data.length; i++)
 			data[i] = null;
 		occupy = 0;
 	}
@@ -200,7 +192,7 @@ public class Vector <E> implements Iterable<E>
 	 */
 	public boolean isEmpty()
 	{
-		return (occupy == 0);
+		return occupy == 0;
 	}
 
 	/**
@@ -218,11 +210,12 @@ public class Vector <E> implements Iterable<E>
 	 * @param obj specified object whose index is to be returned
 	 * @return Index of specified object
 	 */
+	@SuppressWarnings("unchecked")
 	public int indexOf(E obj)
 	{
 		for(int i = 0; i < data.length; i++)
 		{
-			if(data[i].equals(obj))
+			if((E) data[i] == obj)
 				return i;
 		}
 		return -1;
@@ -249,18 +242,13 @@ public class Vector <E> implements Iterable<E>
 	{
 		if(x.size() != data.length)
 			return false;
-		for (int i = 0; i < data.length; i++)
+		for(int i = 0; i < data.length; i++)
 		{
-			if (data[i] == null && x.get(i) == null)
-				continue;
-			else if (data[i].equals(x.get(i)))
-				continue;
-			else
+			if(data[i] != x.get(i)||(data[i] == null && x.get(i) == null))
 				return false;
 		}
 		return true;
 	}
-	
 	/**
 	 * create and return an iterator
 	 * @return Iterator<E>

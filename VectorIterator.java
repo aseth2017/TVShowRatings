@@ -1,4 +1,7 @@
+package Netflix;
+
 import java.util.Iterator;
+//import java.lang.Iterable;
 import java.util.NoSuchElementException;
 /**
  * This is a VectorIterator class
@@ -15,20 +18,12 @@ public class VectorIterator<E> implements Iterator<E>
 		vector = v;
 		curr = 0;
 	}
-	/**
-	 * Returns true if element exists in next position, else false
-	 * @return boolean does another element exist in the vector
-	 */
 	public boolean hasNext()
 	{
 		if(curr < vector.size())
 			return true;
 		return false;
 	}
-	/**
-	 * Returns next item in vector
-	 * @return Next element in vector
-	 */
 	public E next()
 	{
 		if(hasNext() == false)

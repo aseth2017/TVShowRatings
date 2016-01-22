@@ -1,3 +1,4 @@
+package Netflix;
 import java.io.*;
 import java.util.Scanner;
 /**
@@ -7,19 +8,16 @@ import java.util.Scanner;
  */
 public class Netflix
 {
-	private static Vector<Vector<Integer>> users = new Vector<Vector<Integer>>(50);
-	private static Vector<String> shows = new Vector<String>(50);
+	private static Vector<Vector<Integer>> users = new Vector<Vector<Integer>>();
+	private static Vector<String> shows = new Vector<String>();
 	private static String s;
 	
 	public static void main(String[] args)
 	{
 		String s = ReadCSV();
 		initVector(s);
-//		System.out.println(shows);
-//		System.out.println(users);
 		System.out.println(Recommendations(2));
 	}
-	
 	/**
 	 * Reads the CSV file
 	 * @return Returns a string representation of the CSV
@@ -73,8 +71,8 @@ public class Netflix
 				Vector<Integer> line = new Vector<Integer>();
 				while(s.charAt(i) != '\n')
 				{
-					if(s.charAt(i) != '\n' && s.charAt(i) != ',')
-						line.add((int)s.charAt(i)- 48); //Finds ASCII values for integers
+					if(s.charAt(i) != '\n')
+						line.add((int)s.charAt(i) - 48); //Finds ASCII values for integers
 					i++;
 				}
 				users.add(line);
@@ -90,7 +88,7 @@ public class Netflix
 	 * @param the user's rating of the show
 	 * @param returns the scaled value of the user's rating
 	 */
-/*	public static int scale(int rating)
+	public static int scale(int rating)
 	{
 		if(rating == 0)
 			return 0;
@@ -111,7 +109,7 @@ public class Netflix
 	 * @param the vector of two particular people
 	 * @return returns the similarity score
 	 */
-/*	public static int getSimilarityScore(Vector<Integer> user1, Vector<Integer> user2)
+	public static int getSimilarityScore(Vector<Integer> user1, Vector<Integer> user2)
 	{
 		int similarity = 0;
 		for(int i = 0; i < shows.size(); i++)
@@ -126,8 +124,8 @@ public class Netflix
 	 * @param user whose recommendations you will be giving
 	 * @return Vector of Strings with the recommendations
 	 */
-	
-/*	public static Vector<String> CompareScores(int index)
+/*	
+	public static Vector<String> CompareScores(int index)
 	{
 		Vector<String> s = new Vector<String> (3);
 		String first, second, third;
@@ -162,32 +160,25 @@ public class Netflix
 	public static Vector<String> Recommendations(int index)
 	{
 		Vector<String> s = new Vector<String> (3);
-		Vector<Integer> store = new Vector<Integer> (3);
-		int i = 0;
+		int hold = 0;
+		int save = 0;
 		int holder = 0;
-		while(i < users.size())
+		for(int i = 0; i < shows.size(); i++)
 		{
-			int hold = 0;
-			int c = 0;
-			if(users.get(i).get(index) == 0)
+			if(users.get(index).get(i) == 0)
 			{
-				while(c< shows.size())
+				for(int c = 0; c < shows.size(); c++)
 				{
 					hold += users.get(i).get(c);
-					c++;
 				}
-				if(holder <= hold/50)
+				if(holder > hold/50)
 				{
-					s.add(shows.get(i));
 					holder = hold/50;
+					save = i;
+					s.add(shows.get(i));
 				}
 			}
-			i++;
-		}		
-		Vector<String> output = new Vector<String> (3);
-		output.add(s.get(0));
-		output.add(s.get(1));
-		output.add(s.get(2));
-		return output;
+		}
+		return s;
 	}
 }
