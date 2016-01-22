@@ -1,4 +1,3 @@
-package Netflix;
 import java.io.*;
 import java.util.Scanner;
 /**
